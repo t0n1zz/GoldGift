@@ -2,8 +2,6 @@
 
 Gold-backed gift cards with Solana Blinks. Send appreciating value for birthdays, weddings, graduations, and more.
 
-**Hackathon:** Solana Graveyard Hack (Blinks Track) + Oro GRAIL Grant Program
-
 ## Stack
 
 - **Frontend:** Next.js 14 (App Router), TypeScript, Tailwind CSS
