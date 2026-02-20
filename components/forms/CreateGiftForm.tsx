@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { OCCASIONS, MIN_GIFT_USD, MAX_GIFT_USD, MAX_MESSAGE_LENGTH } from "@/lib/utils/constants";
 import { formatGold } from "@/lib/utils/formatting";
+import { getClaimBlinkUrl } from "@/lib/utils/gift-id";
 import { Transaction } from "@/lib/solana/legacy-boundary";
 
 type Status = "idle" | "loading-quote" | "loading-create" | "signing" | "success" | "error";
@@ -17,7 +18,15 @@ export function CreateGiftForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [claimUrl, setClaimUrl] = useState("");
+  const [createdGiftId, setCreatedGiftId] = useState<string | null>(null);
+  const [copied, setCopied] = useState<"claim" | "blink" | null>(null);
   const [quote, setQuote] = useState<{ amountGold: number; rate?: number } | null>(null);
+
+  const copyWithFeedback = useCallback(async (text: string, which: "claim" | "blink") => {
+    await navigator.clipboard.writeText(text);
+    setCopied(which);
+    setTimeout(() => setCopied(null), 2000);
+  }, []);
 
   const amountNum = parseFloat(amount) || 0;
   const validAmount = amountNum >= MIN_GIFT_USD && amountNum <= MAX_GIFT_USD;
@@ -94,6 +103,7 @@ export function CreateGiftForm() {
       }
 
       setClaimUrl(createData.claim_url);
+      setCreatedGiftId(createData.id);
       setStatus("success");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
@@ -110,23 +120,50 @@ export function CreateGiftForm() {
   }
 
   if (status === "success" && claimUrl) {
+    const blinkUrl = typeof window !== "undefined" && createdGiftId
+      ? getClaimBlinkUrl(createdGiftId, window.location.origin)
+      : "";
     return (
-      <div className="space-y-4">
-        <p className="font-medium text-stone-900">Gift created. Share this link:</p>
-        <div className="flex gap-2">
-          <input
-            readOnly
-            value={claimUrl}
-            className="flex-1 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm text-stone-900"
-          />
-          <button
-            type="button"
-            onClick={() => navigator.clipboard.writeText(claimUrl)}
-            className="rounded-xl bg-amber-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-800 transition-colors"
-          >
-            Copy
-          </button>
+      <div className="space-y-5">
+        <p className="font-medium text-stone-900">Gift created. Share with the recipient:</p>
+        <div className="space-y-2">
+          <label className="text-xs font-medium text-stone-500 uppercase tracking-wide">Claim link</label>
+          <div className="flex gap-2">
+            <input
+              readOnly
+              value={claimUrl}
+              className="flex-1 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm text-stone-900"
+              aria-label="Claim URL"
+            />
+            <button
+              type="button"
+              onClick={() => copyWithFeedback(claimUrl, "claim")}
+              className="rounded-xl bg-amber-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-800 transition-colors whitespace-nowrap"
+            >
+              {copied === "claim" ? "Copied!" : "Copy"}
+            </button>
+          </div>
         </div>
+        {blinkUrl && (
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-stone-500 uppercase tracking-wide">Or share as Blink</label>
+            <div className="flex gap-2">
+              <input
+                readOnly
+                value={blinkUrl}
+                className="flex-1 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm text-stone-900 truncate"
+                aria-label="Blink URL"
+              />
+              <button
+                type="button"
+                onClick={() => copyWithFeedback(blinkUrl, "blink")}
+                className="rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors whitespace-nowrap"
+              >
+                {copied === "blink" ? "Copied!" : "Copy Blink"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

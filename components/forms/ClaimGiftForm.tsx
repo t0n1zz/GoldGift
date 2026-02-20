@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { Transaction } from "@/lib/solana/legacy-boundary";
+import { ClaimConfetti } from "@/components/ClaimConfetti";
 import type { Gift } from "@/types/gift";
 
 type Status = "idle" | "loading" | "success" | "error";
@@ -93,9 +94,13 @@ export function ClaimGiftForm({
 
   if (status === "success") {
     return (
-      <div className="rounded-2xl border border-stone-200 bg-white p-6 text-center">
-        <p className="font-medium text-stone-900">You claimed your gold.</p>
-      </div>
+      <>
+        <ClaimConfetti />
+        <div className="rounded-2xl border border-stone-200 bg-white p-6 text-center">
+          <p className="font-medium text-stone-900">You claimed your gold.</p>
+          <p className="mt-1 text-sm text-stone-600">Your GOLD is in your wallet.</p>
+        </div>
+      </>
     );
   }
 

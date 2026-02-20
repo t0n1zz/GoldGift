@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { WalletButton } from "@/components/wallet/WalletButton";
 import { CreateGiftForm } from "@/components/forms/CreateGiftForm";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export default function CreatePage() {
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 flex flex-col">
       <header className="sticky top-0 z-10 border-b border-stone-200 bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <Link href="/" className="text-lg font-semibold text-stone-900 tracking-tight">
@@ -13,7 +14,7 @@ export default function CreatePage() {
           <WalletButton />
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-12">
+      <main className="mx-auto max-w-5xl px-4 py-12 flex-1">
         <h1 className="text-2xl font-semibold text-stone-900 tracking-tight">
           Create a gold gift card
         </h1>
@@ -26,6 +27,7 @@ export default function CreatePage() {
           </div>
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }
