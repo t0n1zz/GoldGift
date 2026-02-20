@@ -7,7 +7,7 @@ Gold-backed gift cards with Solana Blinks. Send appreciating value for birthdays
 - **Frontend:** Next.js 14 (App Router), TypeScript, Tailwind CSS
 - **Database:** Supabase (PostgreSQL)
 - **Blockchain:** Solana Web3.js, @solana/actions (Blinks), @solana/wallet-adapter-react
-- **RPC:** OrbitFlare (required for hackathon)
+- **RPC:** OrbitFlare
 - **Gold:** Oro GRAIL API (USDC → GOLD)
 
 ## Setup
