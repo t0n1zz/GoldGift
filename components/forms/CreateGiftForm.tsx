@@ -74,16 +74,24 @@ export function CreateGiftForm() {
       const buyData = await buyRes.json();
       if (!buyRes.ok) throw new Error(buyData.error ?? "Buy tx failed");
 
+      if (!buyData.escrowAccount) {
+        throw new Error("Escrow not available from GRAIL; please try again.");
+      }
+
       const txBuf = Buffer.from(buyData.transaction, "base64");
       const tx = Transaction.from(txBuf);
       const sig = await sendTransaction(tx, connection, { skipPreflight: false });
       await connection.confirmTransaction(sig, "confirmed");
 
-      await fetch(`/api/gifts/${createData.id}`, {
+      const patchRes = await fetch(`/api/gifts/${createData.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ transaction_signature: sig, escrow_account: buyData.escrowAccount }),
       });
+      const patchData = await patchRes.json();
+      if (!patchRes.ok) {
+        throw new Error(patchData.error ?? "Gift created but failed to save transaction. Share the link and contact support if the recipient cannot claim.");
+      }
 
       setClaimUrl(createData.claim_url);
       setStatus("success");
@@ -95,26 +103,26 @@ export function CreateGiftForm() {
 
   if (!connected) {
     return (
-      <div className="rounded-xl border border-gold-200 bg-gold-50/50 p-6 text-center">
-        <p className="text-foreground/80">Connect your wallet to create a gold gift card.</p>
+      <div className="rounded-xl border border-stone-200 bg-amber-50/50 p-6 text-center">
+        <p className="text-stone-600">Connect your wallet to create a gold gift card.</p>
       </div>
     );
   }
 
   if (status === "success" && claimUrl) {
     return (
-      <div className="rounded-xl border border-gold-200 bg-gold-50/50 p-6 space-y-4">
-        <p className="font-medium text-gold-800">Gift created! Share this link:</p>
+      <div className="space-y-4">
+        <p className="font-medium text-stone-900">Gift created. Share this link:</p>
         <div className="flex gap-2">
           <input
             readOnly
             value={claimUrl}
-            className="flex-1 rounded-lg border border-gold-200 bg-white px-3 py-2 text-sm"
+            className="flex-1 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm text-stone-900"
           />
           <button
             type="button"
             onClick={() => navigator.clipboard.writeText(claimUrl)}
-            className="rounded-lg bg-gold-500 px-4 py-2 text-white font-medium hover:bg-gold-600"
+            className="rounded-xl bg-amber-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-amber-800 transition-colors"
           >
             Copy
           </button>
@@ -124,9 +132,9 @@ export function CreateGiftForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label className="block text-sm font-medium text-foreground mb-1">Amount (USD)</label>
+        <label className="block text-sm font-medium text-stone-900 mb-1.5">Amount (USD)</label>
         <input
           type="number"
           min={MIN_GIFT_USD}
@@ -135,21 +143,19 @@ export function CreateGiftForm() {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           onBlur={() => validAmount && fetchQuote()}
-          className="w-full rounded-lg border border-gold-200 bg-white px-3 py-2"
-          placeholder={`$${MIN_GIFT_USD} - $${MAX_GIFT_USD}`}
+          className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+          placeholder={`${MIN_GIFT_USD} – ${MAX_GIFT_USD}`}
         />
         {quote && validAmount && (
-          <p className="mt-1 text-sm text-foreground/70">
-            ≈ {formatGold(quote.amountGold)}
-          </p>
+          <p className="mt-1.5 text-sm text-stone-600">≈ {formatGold(quote.amountGold)}</p>
         )}
       </div>
       <div>
-        <label className="block text-sm font-medium text-foreground mb-1">Occasion</label>
+        <label className="block text-sm font-medium text-stone-900 mb-1.5">Occasion</label>
         <select
           value={occasion}
           onChange={(e) => setOccasion(e.target.value as typeof occasion)}
-          className="w-full rounded-lg border border-gold-200 bg-white px-3 py-2"
+          className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
         >
           {OCCASIONS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -159,28 +165,28 @@ export function CreateGiftForm() {
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-foreground mb-1">Message (optional)</label>
+        <label className="block text-sm font-medium text-stone-900 mb-1.5">Message (optional)</label>
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           maxLength={MAX_MESSAGE_LENGTH}
           rows={2}
-          className="w-full rounded-lg border border-gold-200 bg-white px-3 py-2 text-sm"
+          className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 resize-none"
           placeholder="Happy birthday!"
         />
-        <p className="text-xs text-foreground/60 mt-1">{message.length}/{MAX_MESSAGE_LENGTH}</p>
+        <p className="mt-1 text-xs text-stone-500">{message.length} / {MAX_MESSAGE_LENGTH}</p>
       </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"
         disabled={!validAmount || status === "loading-create" || status === "signing"}
-        className="w-full rounded-lg bg-gradient-to-r from-gold-500 to-gold-600 py-3 text-white font-medium hover:from-gold-400 hover:to-gold-500 disabled:opacity-50"
+        className="w-full rounded-xl bg-amber-700 py-3 text-sm font-medium text-white hover:bg-amber-800 disabled:opacity-50 disabled:pointer-events-none transition-colors"
       >
         {status === "loading-create" || status === "signing"
           ? status === "signing"
-            ? "Confirm in wallet..."
-            : "Creating..."
-          : "Create Gold Gift"}
+            ? "Confirm in wallet…"
+            : "Creating…"
+          : "Create gold gift"}
       </button>
     </form>
   );

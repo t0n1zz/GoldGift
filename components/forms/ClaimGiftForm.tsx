@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { Transaction } from "@/lib/solana/legacy-boundary";
 import type { Gift } from "@/types/gift";
@@ -14,6 +15,7 @@ export function ClaimGiftForm({
   gift: Gift;
   onClaimed?: () => void;
 }) {
+  const router = useRouter();
   const { publicKey, connected, sendTransaction } = useWallet();
   const { connection } = useConnection();
   const [status, setStatus] = useState<Status>("idle");
@@ -42,7 +44,7 @@ export function ClaimGiftForm({
       const sig = await sendTransaction(tx, connection, { skipPreflight: false });
       await connection.confirmTransaction(sig, "confirmed");
 
-      await fetch("/api/gifts/claim", {
+      const claimRes = await fetch("/api/gifts/claim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -51,8 +53,13 @@ export function ClaimGiftForm({
           transaction_signature: sig,
         }),
       });
+      const claimData = await claimRes.json();
+      if (!claimRes.ok) {
+        throw new Error(claimData.error ?? "Failed to record claim");
+      }
       setStatus("success");
       onClaimed?.();
+      router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Claim failed");
       setStatus("error");
@@ -61,24 +68,33 @@ export function ClaimGiftForm({
 
   if (gift.claimed) {
     return (
-      <div className="rounded-xl border border-gold-200 bg-gold-50/50 p-6 text-center">
-        <p className="text-gold-800 font-medium">This gift has already been claimed.</p>
+      <div className="rounded-2xl border border-stone-200 bg-white p-6 text-center">
+        <p className="font-medium text-stone-900">This gift has already been claimed.</p>
+      </div>
+    );
+  }
+
+  if (!gift.escrow_account) {
+    return (
+      <div className="rounded-2xl border border-stone-200 bg-amber-50/80 p-6 text-center">
+        <p className="font-medium text-stone-900">This gift isn&apos;t ready to claim yet.</p>
+        <p className="mt-1 text-sm text-stone-600">The sender may still be completing the transaction. Try again in a moment.</p>
       </div>
     );
   }
 
   if (!connected) {
     return (
-      <div className="rounded-xl border border-gold-200 bg-gold-50/50 p-6 text-center">
-        <p className="text-foreground/80">Connect your wallet to claim this gift.</p>
+      <div className="rounded-2xl border border-stone-200 bg-white p-6 text-center">
+        <p className="text-stone-600">Connect your wallet to claim this gift.</p>
       </div>
     );
   }
 
   if (status === "success") {
     return (
-      <div className="rounded-xl border border-gold-200 bg-gold-50/50 p-6 text-center">
-        <p className="text-gold-800 font-medium">You claimed your gold! 🎉</p>
+      <div className="rounded-2xl border border-stone-200 bg-white p-6 text-center">
+        <p className="font-medium text-stone-900">You claimed your gold.</p>
       </div>
     );
   }
@@ -89,11 +105,11 @@ export function ClaimGiftForm({
         type="button"
         onClick={handleClaim}
         disabled={status === "loading"}
-        className="w-full rounded-lg bg-gradient-to-r from-gold-500 to-gold-600 py-3 text-white font-medium hover:from-gold-400 hover:to-gold-500 disabled:opacity-50"
+        className="w-full rounded-xl bg-amber-700 py-3 text-sm font-medium text-white hover:bg-amber-800 disabled:opacity-50 transition-colors"
       >
-        {status === "loading" ? "Confirm in wallet..." : "Claim Gift"}
+        {status === "loading" ? "Confirm in wallet…" : "Claim gift"}
       </button>
-      {error && <p className="text-red-600 text-sm text-center">{error}</p>}
+      {error && <p className="text-sm text-red-600 text-center">{error}</p>}
     </div>
   );
 }

@@ -50,6 +50,8 @@ Gold-backed gift cards with Solana Blinks. Send appreciating value for birthdays
 
 - **Create gift:** `GET/POST` `/api/actions/create-gift` (preset amounts + custom)
 - **Claim gift:** `GET/POST` `/api/actions/claim-gift/[giftId]`
+- **Discovery:** `GET /actions.json` (path → API mapping, CORS enabled)
+- **OG images:** `GET /og/create`, `GET /og/[occasion]` (birthday, wedding, graduation, thankyou) — used as Blink icons
 
 Validate at [actions-validator.com](https://actions-validator.com). Test in [Dialect Blinks Inspector](https://www.blinks.xyz/inspector).
 

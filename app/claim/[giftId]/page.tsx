@@ -19,22 +19,25 @@ export default async function ClaimPage({
   if (error || !gift) notFound();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gold-50 to-white">
-      <header className="border-b border-gold-100 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <Link href="/" className="text-xl font-bold bg-gold-gradient bg-clip-text text-transparent">
+    <div className="min-h-screen bg-stone-50">
+      <header className="sticky top-0 z-10 border-b border-stone-200 bg-white/95 backdrop-blur-sm">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+          <Link href="/" className="text-lg font-semibold text-stone-900 tracking-tight">
             GoldGift
           </Link>
           <WalletButton />
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-12">
+      <main className="mx-auto max-w-5xl px-4 py-12">
         <div className="mx-auto max-w-md space-y-8">
           <GiftCard gift={gift} />
           <ClaimGiftForm gift={gift} />
         </div>
-        <p className="mt-8 text-center">
-          <Link href="/create" className="text-gold-600 hover:underline">
+        <p className="mt-10 text-center">
+          <Link
+            href="/create"
+            className="text-sm font-medium text-amber-700 hover:text-amber-800 transition-colors"
+          >
             Create your own gold gift
           </Link>
         </p>

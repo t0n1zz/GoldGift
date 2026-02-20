@@ -15,7 +15,7 @@ export async function OPTIONS() {
 }
 
 export async function GET() {
-  const iconUrl = `${APP_URL}/og/create.png`;
+  const iconUrl = `${APP_URL}/og/create`;
   const actions = [
     { label: "Send $25 Gold Gift", href: `${BASE}?amount=25` },
     { label: "Send $50 Gold Gift", href: `${BASE}?amount=50` },

@@ -31,7 +31,7 @@ export async function GET(
     );
   }
   if (gift.claimed) {
-    const iconUrl = `${APP_URL}/og/${gift.occasion}.png`;
+    const iconUrl = `${APP_URL}/og/${gift.occasion}`;
     return NextResponse.json(
       {
         type: "action",
@@ -46,7 +46,7 @@ export async function GET(
   }
 
   const emoji = getOccasionEmoji(gift.occasion);
-  const iconUrl = `${APP_URL}/og/${gift.occasion}.png`;
+  const iconUrl = `${APP_URL}/og/${gift.occasion}`;
   const body = {
     type: "action",
     icon: iconUrl,

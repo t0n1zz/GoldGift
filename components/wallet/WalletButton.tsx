@@ -7,7 +7,7 @@ export function WalletButton({ className }: { className?: string }) {
   return (
     <WalletMultiButton
       className={cn(
-        "!rounded-lg !h-10 !px-4 !bg-gradient-to-r !from-gold-500 !to-gold-600 !text-gold-950 hover:!from-gold-400 hover:!to-gold-500 !font-medium !transition-all",
+        "!rounded-xl !h-10 !px-4 !bg-amber-700 !text-white hover:!bg-amber-800 !font-medium !text-sm !transition-colors",
         className
       )}
     />
