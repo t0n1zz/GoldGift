@@ -19,23 +19,16 @@ export function getClaimUrl(giftId: string, baseUrl?: string): string {
   return `${base.replace(/\/$/, "")}/claim/${giftId}`;
 }
 
-const BLINK_VIEWER = "https://blinks.xyz";
-
-/** Encode action URL per Solana Blink spec: solana-action:<https-url> */
-function toBlinkActionUrl(actionEndpoint: string): string {
-  return `solana-action:${actionEndpoint}`;
-}
-
-/** Build Blink URL for claiming (opens in Blinks.xyz viewer) */
+/** Build Blink URL for claiming (solana-action: protocol) */
 export function getClaimBlinkUrl(giftId: string, baseUrl?: string): string {
   const base = baseUrl ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const actionUrl = `${base.replace(/\/$/, "")}/api/actions/claim-gift/${giftId}`;
-  return `${BLINK_VIEWER}/?action=${encodeURIComponent(toBlinkActionUrl(actionUrl))}`;
+  return `solana-action:${actionUrl}`;
 }
 
-/** Build Blink URL for creating a gift (opens in Blinks.xyz viewer) */
+/** Build Blink URL for creating a gift (solana-action: protocol) */
 export function getCreateBlinkUrl(baseUrl?: string): string {
   const base = baseUrl ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const actionUrl = `${base.replace(/\/$/, "")}/api/actions/create-gift`;
-  return `${BLINK_VIEWER}/?action=${encodeURIComponent(toBlinkActionUrl(actionUrl))}`;
+  return `solana-action:${actionUrl}`;
 }
