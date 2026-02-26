@@ -54,10 +54,10 @@ export default async function ClaimPage({
   if (error || !gift) notFound();
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col">
-      <header className="sticky top-0 z-10 border-b border-stone-200 bg-white/95 backdrop-blur-sm">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <header className="sticky top-0 z-10 border-b border-stone-200/70 bg-background/95 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          <Link href="/" className="text-lg font-semibold text-stone-900 tracking-tight">
+          <Link href="/" className="text-lg font-semibold tracking-tight text-foreground">
             GoldGift
           </Link>
           <div className="flex items-center gap-3">
