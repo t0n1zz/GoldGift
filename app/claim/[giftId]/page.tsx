@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { WalletButton } from "@/components/wallet/WalletButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { GiftCard } from "@/components/gift-card";
 import { ClaimGiftForm } from "@/components/forms/ClaimGiftForm";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -59,7 +60,10 @@ export default async function ClaimPage({
           <Link href="/" className="text-lg font-semibold text-stone-900 tracking-tight">
             GoldGift
           </Link>
-          <WalletButton />
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <WalletButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-12 flex-1">

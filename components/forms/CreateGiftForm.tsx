@@ -198,7 +198,93 @@ export function CreateGiftForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 lg:space-y-0 lg:grid lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:gap-8 items-start"
+    >
+      <div className="space-y-5">
+        <div>
+          <label className="block text-sm font-medium text-stone-900 mb-1.5">Amount (USD)</label>
+          <input
+            type="number"
+            min={MIN_GIFT_USD}
+            max={MAX_GIFT_USD}
+            step="1"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            onBlur={() => validAmount && fetchQuote()}
+            className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+            placeholder={`${MIN_GIFT_USD} – ${MAX_GIFT_USD}`}
+          />
+          {quote && validAmount && (
+            <p className="mt-1.5 text-sm text-stone-600">≈ {formatGold(quote.amountGold)}</p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-900 mb-1.5">Occasion</label>
+          <select
+            value={occasion}
+            onChange={(e) => setOccasion(e.target.value as typeof occasion)}
+            className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
+          >
+            {OCCASIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.emoji} {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-900 mb-1.5">Card image (optional)</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0] ?? null;
+              setCardImage(file);
+              if (file) {
+                setCardImagePreview(URL.createObjectURL(file));
+              } else {
+                setCardImagePreview(null);
+              }
+            }}
+            className="block w-full text-sm text-stone-700 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-700 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-amber-800"
+          />
+          {cardImagePreview && (
+            <div className="mt-2 overflow-hidden rounded-xl border border-stone-200 bg-stone-50">
+              <img
+                src={cardImagePreview}
+                alt="Card preview"
+                className="h-32 w-full object-cover"
+              />
+            </div>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-900 mb-1.5">Message (optional)</label>
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            maxLength={MAX_MESSAGE_LENGTH}
+            rows={2}
+            className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 resize-none"
+            placeholder="Happy birthday!"
+          />
+          <p className="mt-1 text-xs text-stone-500">{message.length} / {MAX_MESSAGE_LENGTH}</p>
+        </div>
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        <button
+          type="submit"
+          disabled={!validAmount || status === "loading-create" || status === "signing"}
+          className="w-full rounded-xl bg-amber-700 py-3 text-sm font-medium text-white hover:bg-amber-800 disabled:opacity-50 disabled:pointer-events-none transition-colors"
+        >
+          {status === "loading-create" || status === "signing"
+            ? status === "signing"
+              ? "Confirm in wallet…"
+              : "Creating…"
+            : "Create gold gift"}
+        </button>
+      </div>
       <div>
         <label className="block text-sm font-medium text-stone-900 mb-1.5">
           Preview
@@ -216,90 +302,6 @@ export function CreateGiftForm() {
           />
         </div>
       </div>
-      <div>
-        <label className="block text-sm font-medium text-stone-900 mb-1.5">Amount (USD)</label>
-        <input
-          type="number"
-          min={MIN_GIFT_USD}
-          max={MAX_GIFT_USD}
-          step="1"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          onBlur={() => validAmount && fetchQuote()}
-          className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
-          placeholder={`${MIN_GIFT_USD} – ${MAX_GIFT_USD}`}
-        />
-        {quote && validAmount && (
-          <p className="mt-1.5 text-sm text-stone-600">≈ {formatGold(quote.amountGold)}</p>
-        )}
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-stone-900 mb-1.5">Occasion</label>
-        <select
-          value={occasion}
-          onChange={(e) => setOccasion(e.target.value as typeof occasion)}
-          className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
-        >
-          {OCCASIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.emoji} {o.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-stone-900 mb-1.5">Card image (optional)</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const file = e.target.files?.[0] ?? null;
-            setCardImage(file);
-            if (file) {
-              setCardImagePreview(URL.createObjectURL(file));
-            } else {
-              setCardImagePreview(null);
-            }
-          }}
-          className="block w-full text-sm text-stone-700 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-700 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-amber-800"
-        />
-        {cardImagePreview && (
-          <div className="mt-2">
-            <p className="text-xs text-stone-500 mb-1">Preview</p>
-            <div className="overflow-hidden rounded-xl border border-stone-200 bg-stone-50">
-              <img
-                src={cardImagePreview}
-                alt="Card preview"
-                className="h-32 w-full object-cover"
-              />
-            </div>
-          </div>
-        )}
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-stone-900 mb-1.5">Message (optional)</label>
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          maxLength={MAX_MESSAGE_LENGTH}
-          rows={2}
-          className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 resize-none"
-          placeholder="Happy birthday!"
-        />
-        <p className="mt-1 text-xs text-stone-500">{message.length} / {MAX_MESSAGE_LENGTH}</p>
-      </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
-        type="submit"
-        disabled={!validAmount || status === "loading-create" || status === "signing"}
-        className="w-full rounded-xl bg-amber-700 py-3 text-sm font-medium text-white hover:bg-amber-800 disabled:opacity-50 disabled:pointer-events-none transition-colors"
-      >
-        {status === "loading-create" || status === "signing"
-          ? status === "signing"
-            ? "Confirm in wallet…"
-            : "Creating…"
-          : "Create gold gift"}
-      </button>
     </form>
   );
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { WalletButton } from "@/components/wallet/WalletButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { TryAsBlinkLink } from "@/components/TryAsBlinkLink";
 import { getCreateBlinkUrl } from "@/lib/utils/gift-id";
 import { APP_URL } from "@/lib/utils/constants";
@@ -25,7 +26,10 @@ export default function Home() {
           <Link href="/" className="text-lg font-semibold text-stone-900 tracking-tight">
             GoldGift
           </Link>
-          <WalletButton />
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <WalletButton />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-20 sm:py-28 flex-1">
