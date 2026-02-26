@@ -17,6 +17,7 @@ export function CreateGiftForm() {
   const [amount, setAmount] = useState("");
   const [occasion, setOccasion] = useState<"birthday" | "wedding" | "graduation" | "thankyou">("birthday");
   const [message, setMessage] = useState("");
+  const [cardVariant, setCardVariant] = useState<string | null>(null);
   const [cardImage, setCardImage] = useState<File | null>(null);
   const [cardImagePreview, setCardImagePreview] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>("idle");
@@ -224,7 +225,11 @@ export function CreateGiftForm() {
           <label className="block text-sm font-medium text-stone-900 mb-1.5">Occasion</label>
           <select
             value={occasion}
-            onChange={(e) => setOccasion(e.target.value as typeof occasion)}
+            onChange={(e) => {
+              const value = e.target.value as typeof occasion;
+              setOccasion(value);
+              setCardVariant(null);
+            }}
             className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
           >
             {OCCASIONS.map((o) => (
@@ -233,6 +238,45 @@ export function CreateGiftForm() {
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-900 mb-1.5">
+            Card style
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {["1", "2", "3", "4", "5"].map((n) => {
+              const value = `${occasion}-${n}`;
+              const active = cardVariant === value || (!cardVariant && n === "1");
+              const label = `#${n}`;
+              const gradientByOccasion: Record<string, string[]> = {
+                birthday: ["from-purple-500 to-blue-600", "from-fuchsia-500 to-rose-500", "from-sky-500 to-cyan-500", "from-amber-400 to-pink-500", "from-emerald-500 to-teal-500"],
+                wedding: ["from-pink-400 to-rose-600", "from-rose-300 to-amber-300", "from-slate-800 to-slate-900", "from-emerald-400 to-teal-500", "from-stone-200 to-stone-400"],
+                graduation: ["from-blue-500 to-indigo-600", "from-slate-900 to-slate-700", "from-amber-500 to-emerald-500", "from-indigo-500 to-purple-600", "from-stone-800 to-stone-900"],
+                thankyou: ["from-amber-400 to-orange-500", "from-emerald-400 to-lime-400", "from-sky-400 to-cyan-500", "from-stone-800 to-stone-900", "from-rose-400 to-fuchsia-500"],
+              };
+              const gradients = gradientByOccasion[occasion] ?? [];
+              const gradient = gradients[parseInt(n, 10) - 1] ?? gradients[0] ?? "from-amber-400 to-amber-600";
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setCardVariant(value)}
+                  className={[
+                    "flex flex-col items-center gap-1 rounded-xl border px-2 py-1.5 text-xs transition",
+                    active
+                      ? "border-amber-600 bg-amber-50 text-amber-800"
+                      : "border-stone-200 bg-white text-stone-600 hover:border-amber-500/70",
+                  ].join(" ")}
+                >
+                  <span
+                    className={`h-8 w-16 rounded-lg bg-gradient-to-r ${gradient}`}
+                    aria-hidden
+                  />
+                  <span>{label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
         <div>
           <label className="block text-sm font-medium text-stone-900 mb-1.5">Card image (optional)</label>
@@ -298,6 +342,7 @@ export function CreateGiftForm() {
               message: message || "Your message will appear here.",
               claimed: false,
               image_url: cardImagePreview ?? null,
+              card_variant: cardVariant ?? `${occasion}-1`,
             }}
           />
         </div>

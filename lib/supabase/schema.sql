@@ -10,6 +10,7 @@ CREATE TABLE gifts (
   occasion TEXT NOT NULL CHECK (occasion IN ('birthday', 'wedding', 'graduation', 'thankyou')),
   message TEXT,
   image_url TEXT,
+  card_variant TEXT,
   claimed BOOLEAN DEFAULT FALSE,
   claimed_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -53,3 +54,4 @@ ORDER BY day DESC;
 
 -- If you are updating an existing project, run:
 --   ALTER TABLE gifts ADD COLUMN image_url TEXT;
+--   ALTER TABLE gifts ADD COLUMN card_variant TEXT;

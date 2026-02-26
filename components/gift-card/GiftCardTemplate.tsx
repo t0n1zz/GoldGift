@@ -5,7 +5,7 @@ import type { Gift } from "@/types/gift";
 import { formatUsd, formatGold, getOccasionEmoji } from "@/lib/utils/formatting";
 
 interface GiftCardTemplateProps {
-  gift: Pick<Gift, "amount_usd" | "amount_gold" | "occasion" | "message" | "claimed" | "image_url">;
+  gift: Pick<Gift, "amount_usd" | "amount_gold" | "occasion" | "message" | "claimed" | "image_url" | "card_variant">;
   className?: string;
   children?: React.ReactNode;
   gradientClass?: string;

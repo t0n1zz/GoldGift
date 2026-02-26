@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
     const occasion = body?.occasion?.trim();
     const message = body?.message?.trim()?.slice(0, MAX_MESSAGE_LENGTH) ?? null;
     const image_url = typeof body?.image_url === "string" ? body.image_url.trim() || null : null;
+    const card_variant = typeof body?.card_variant === "string" ? body.card_variant.trim() || null : null;
 
     if (typeof sender_wallet !== "string" || sender_wallet.length < 32) {
       return NextResponse.json({ error: "Invalid sender_wallet" }, { status: 400 });
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
       occasion,
       message,
       image_url,
+      card_variant,
       claimed: false,
     });
 
