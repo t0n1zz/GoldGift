@@ -7,6 +7,7 @@ import { formatGold } from "@/lib/utils/formatting";
 import { getClaimBlinkUrl } from "@/lib/utils/gift-id";
 import { Transaction } from "@/lib/solana/legacy-boundary";
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
+import { GiftCard } from "@/components/gift-card";
 
 type Status = "idle" | "loading-quote" | "loading-create" | "signing" | "success" | "error";
 
@@ -198,6 +199,23 @@ export function CreateGiftForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <label className="block text-sm font-medium text-stone-900 mb-1.5">
+          Preview
+        </label>
+        <div className="rounded-2xl border border-stone-200 bg-stone-50/80 p-3">
+          <GiftCard
+            gift={{
+              amount_usd: amountNum || MIN_GIFT_USD,
+              amount_gold: quote?.amountGold ?? 0,
+              occasion,
+              message: message || "Your message will appear here.",
+              claimed: false,
+              image_url: cardImagePreview ?? null,
+            }}
+          />
+        </div>
+      </div>
       <div>
         <label className="block text-sm font-medium text-stone-900 mb-1.5">Amount (USD)</label>
         <input
