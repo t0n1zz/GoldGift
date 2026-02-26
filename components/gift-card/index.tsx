@@ -12,13 +12,14 @@ const cardProps = {
   occasion: "birthday" as const,
   message: null as string | null,
   claimed: false,
+  image_url: null as string | null,
 };
 
 export function GiftCard({
   gift,
   className,
 }: {
-  gift: Pick<Gift, "amount_usd" | "amount_gold" | "occasion" | "message" | "claimed">;
+  gift: Pick<Gift, "amount_usd" | "amount_gold" | "occasion" | "message" | "claimed" | "image_url">;
   className?: string;
 }) {
   const props = { gift: { ...cardProps, ...gift }, className };

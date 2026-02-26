@@ -2,6 +2,14 @@
 
 Gold-backed gift cards with Solana Blinks. Send appreciating value for birthdays, weddings, graduations, and more.
 
+## Features
+
+- **Gold-backed gifts**: Send USD that is converted to gold via Oro GRAIL.
+- **Occasion cards**: Birthday, wedding, graduation, thank you – each with its own design.
+- **Custom message**: Personal note on every card.
+- **Custom card image**: Optional photo upload for each gift card, stored in Supabase Storage.
+- **Solana Blinks**: Create and claim gifts directly from Blink-aware clients.
+
 ## Stack
 
 - **Frontend:** Next.js 14 (App Router), TypeScript, Tailwind CSS
@@ -29,7 +37,16 @@ Gold-backed gift cards with Solana Blinks. Send appreciating value for birthdays
 
 3. Create Supabase tables: run `lib/supabase/schema.sql` in the Supabase SQL Editor.
 
-4. Run dev server:
+4. Create Supabase Storage bucket (for custom card images):
+   - Go to **Storage → Create bucket** and name it `gift-images`.
+   - Make it public (or add a policy that allows public read).
+
+5. If you are upgrading an existing database that already has a `gifts` table, add the `image_url` column:
+   ```sql
+   ALTER TABLE gifts ADD COLUMN image_url TEXT;
+   ```
+
+6. Run dev server:
    ```bash
    npm run dev
    ```

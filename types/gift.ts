@@ -8,6 +8,7 @@ export interface Gift {
   amount_gold: number;
   occasion: Occasion;
   message: string | null;
+  image_url: string | null;
   claimed: boolean;
   claimed_at: string | null;
   created_at: string;

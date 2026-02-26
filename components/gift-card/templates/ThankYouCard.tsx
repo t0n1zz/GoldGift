@@ -7,7 +7,7 @@ export function ThankYouCard({
   gift,
   className,
 }: {
-  gift: Pick<Gift, "amount_usd" | "amount_gold" | "occasion" | "message" | "claimed">;
+  gift: Pick<Gift, "amount_usd" | "amount_gold" | "occasion" | "message" | "claimed" | "image_url">;
   className?: string;
 }) {
   return (

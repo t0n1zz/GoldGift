@@ -6,6 +6,7 @@ import { OCCASIONS, MIN_GIFT_USD, MAX_GIFT_USD, MAX_MESSAGE_LENGTH } from "@/lib
 import { formatGold } from "@/lib/utils/formatting";
 import { getClaimBlinkUrl } from "@/lib/utils/gift-id";
 import { Transaction } from "@/lib/solana/legacy-boundary";
+import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 
 type Status = "idle" | "loading-quote" | "loading-create" | "signing" | "success" | "error";
 
@@ -15,6 +16,8 @@ export function CreateGiftForm() {
   const [amount, setAmount] = useState("");
   const [occasion, setOccasion] = useState<"birthday" | "wedding" | "graduation" | "thankyou">("birthday");
   const [message, setMessage] = useState("");
+  const [cardImage, setCardImage] = useState<File | null>(null);
+  const [cardImagePreview, setCardImagePreview] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [claimUrl, setClaimUrl] = useState("");
@@ -100,6 +103,31 @@ export function CreateGiftForm() {
       const patchData = await patchRes.json();
       if (!patchRes.ok) {
         throw new Error(patchData.error ?? "Gift created but failed to save transaction. Share the link and contact support if the recipient cannot claim.");
+      }
+
+      // Optional: upload custom card image to Supabase Storage and attach URL
+      if (cardImage) {
+        const supabase = createSupabaseClient();
+        const ext = cardImage.name.split(".").pop() || "jpg";
+        const path = `gifts/${createData.id}-${Date.now()}.${ext}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("gift-images")
+          .upload(path, cardImage, {
+            cacheControl: "3600",
+            upsert: true,
+          });
+        if (uploadError) {
+          throw new Error("Gift created but failed to upload card image. Please try again.");
+        }
+        const { data: publicUrlData } = supabase.storage.from("gift-images").getPublicUrl(uploadData.path);
+        const imageUrl = publicUrlData?.publicUrl;
+        if (imageUrl) {
+          await fetch(`/api/gifts/${createData.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image_url: imageUrl }),
+          });
+        }
       }
 
       setClaimUrl(createData.claim_url);
@@ -200,6 +228,35 @@ export function CreateGiftForm() {
             </option>
           ))}
         </select>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-stone-900 mb-1.5">Card image (optional)</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0] ?? null;
+            setCardImage(file);
+            if (file) {
+              setCardImagePreview(URL.createObjectURL(file));
+            } else {
+              setCardImagePreview(null);
+            }
+          }}
+          className="block w-full text-sm text-stone-700 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-700 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-amber-800"
+        />
+        {cardImagePreview && (
+          <div className="mt-2">
+            <p className="text-xs text-stone-500 mb-1">Preview</p>
+            <div className="overflow-hidden rounded-xl border border-stone-200 bg-stone-50">
+              <img
+                src={cardImagePreview}
+                alt="Card preview"
+                className="h-32 w-full object-cover"
+              />
+            </div>
+          </div>
+        )}
       </div>
       <div>
         <label className="block text-sm font-medium text-stone-900 mb-1.5">Message (optional)</label>
